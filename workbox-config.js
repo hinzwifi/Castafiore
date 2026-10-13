@@ -2,7 +2,7 @@ module.exports = {
   globDirectory: './dist/',
   swDest: 'dist/serviceWorker.js',
   globPatterns: ["**/*.{html,js,css,png,jpg,jpeg,gif,svg,json,woff2,woff,eot,ttf}",],
-  dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
+  dontCacheBustURLsMatching: /[-.][0-9a-f]{8,32}\./,
   globIgnores: [
     'asset-manifest.json$',
     '**/*.map$',
@@ -12,6 +12,17 @@ module.exports = {
   ],
   maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
   runtimeCaching: [
+    {
+      urlPattern: ({ url }) => /\.(?:ttf|woff2?|eot|otf)$/.test(url.pathname),
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'fonts',
+        expiration: {
+          maxAgeSeconds: 60 * 60 * 24 * 365,
+          maxEntries: 30,
+        },
+      },
+    },
     {
       urlPattern: ({ url }) => url.origin === self.location.origin && url.pathname.endsWith('.png'),
       handler: 'CacheFirst',
